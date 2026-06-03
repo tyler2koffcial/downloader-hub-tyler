@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tyler' Downloader Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(145deg, #0a0f1e 0%, #0c1222 100%);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+            color: #eef2ff;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        .hub-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .hub-header h1 {
+            font-size: 2.8rem;
+            background: linear-gradient(135deg, #ffffff, #a5f3ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .sub {
+            color: #9ca3cf;
+            margin-top: 0.75rem;
+        }
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: rgba(18, 25, 45, 0.7);
+            padding: 0.8rem 1.5rem;
+            border-radius: 60px;
+        }
+        .search-box {
+            flex: 2;
+            background: #111827;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+        }
+        .search-box input {
+            background: transparent;
+            border: none;
+            padding: 0.6rem 0;
+            width: 100%;
+            color: white;
+            outline: none;
+        }
+        .filter-group select {
+            background: #1e2a3e;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+        }
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 1.8rem;
+        }
+        .app-card {
+            background: rgba(20, 28, 44, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: transform 0.2s;
+            text-align: center;
+        }
+        .app-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(59,130,246,0.4);
+        }
+        .app-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .app-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .app-category {
+            color: #60a5fa;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin: 0.3rem 0;
+        }
+        .app-desc {
+            color: #b9c3e6;
+            font-size: 0.9rem;
+            margin: 0.7rem 0;
+            line-height: 1.4;
+        }
+        .download-btn {
+            display: block;
+            background: #2563eb;
+            text-align: center;
+            padding: 0.7rem;
+            border-radius: 40px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 1rem;
+            transition: background 0.2s;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            font-size: 1rem;
+        }
+        .download-btn:hover {
+            background: #1d4ed8;
+        }
+        .download-btn:disabled {
+            background: #475569;
+            cursor: not-allowed;
+        }
+        .no-results {
+            text-align: center;
+            grid-column: 1/-1;
+            padding: 3rem;
+        }
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            opacity: 0.6;
+            font-size: 0.8rem;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #1e293b;
+            border-radius: 30px;
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid #3b82f6;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-content h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        .captcha-box {
+            background: #0f172a;
+            padding: 1.5rem;
+            border-radius: 20px;
+            margin: 1rem 0;
+        }
+        .captcha-display {
+            background: #000000;
+            padding: 1rem;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 2rem;
+            font-weight: bold;
+            letter-spacing: 8px;
+            text-align: center;
+            color: #10b981;
+            margin-bottom: 1rem;
+            border: 1px solid #3b82f6;
+        }
+        .captcha-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 30px;
+            border: none;
+            text-align: center;
+            font-size: 1rem;
+            background: #0f172a;
+            color: white;
+            margin-top: 10px;
+        }
+        .countdown-box {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 20px;
+            margin: 1rem 0;
+        }
+        .countdown-timer {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #fbbf24;
+        }
+        .verify-btn {
+            background: #10b981;
+            width: 100%;
+            padding: 12px;
+        }
+        .verify-btn:disabled {
+            background: #475569;
+            cursor: not-allowed;
+        }
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+        .success-msg {
+            color: #10b981;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+        .close-modal {
+            margin-top: 1rem;
+            background: #475569;
+            padding: 10px;
+            width: 100%;
+        }
+        .refresh-captcha {
+            background: #3b82f6;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            margin-top: 10px;
+            display: inline-block;
+            width: auto;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="hub-header">
+        <h1>📦 Tyler' Downloader Hub</h1>
+        <div class="sub">⬇️ Piliin mo lang yung gusto mong app — mag-solve lang ng captcha</div>
+    </div>
+
+    <div class="toolbar">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Maghanap ng app...">
+        </div>
+        <div class="filter-group">
+            <select id="categoryFilter">
+                <option value="all">📂 All Categories</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="appsContainer" class="apps-grid">
+        <div style="text-align: center; grid-column:1/-1;">Loading apps...</div>
+    </div>
+
+    <footer>
+        🧰 Auto-update galing kay Admin — laging fresh ang mga link
+    </footer>
+</div>
+
+<!-- Captcha Modal -->
+<div id="captchaModal" class="modal">
+    <div class="modal-content">
+        <h3>🔐 Human Verification</h3>
+        
+        <!-- Step 1: Captcha Input -->
+        <div id="stepCaptcha">
+            <p style="margin-bottom: 10px;">I-type ang code sa ibaba:</p>
+            <div class="captcha-box">
+                <div class="captcha-display" id="captchaCode">XXXX</div>
+                <input type="text" id="captchaInput" class="captcha-input" placeholder="Ilagay ang code" autocomplete="off">
+                <button id="refreshCaptchaBtn" class="download-btn refresh-captcha">🔄 I-refresh Code</button>
+            </div>
+            <button id="verifyCaptchaBtn" class="download-btn verify-btn">✓ Verify Code</button>
+            <div id="captchaError" class="error-msg"></div>
+        </div>
+
+        <!-- Step 2: Countdown (shown after correct captcha) -->
+        <div id="stepCountdown" class="hidden">
+            <div class="countdown-box">
+                <div style="font-size: 0.9rem; margin-bottom: 5px;">⏳ Verified! Maghintay ng:</div>
+                <div class="countdown-timer" id="countdownTimer">10</div>
+                <div id="countdownStatus" style="font-size: 0.75rem; color: #94a3b8;">seconds bago mag-download</div>
+            </div>
+            <button id="downloadNowBtn" class="download-btn verify-btn" disabled>⏳ Maghintay...</button>
+        </div>
+        
+        <button id="closeModalBtn" class="download-btn close-modal">❌ Cancel</button>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEY = "paps_downloader_hub_apps";
+    let pendingDownloadUrl = null;
+    let currentCaptchaText = "";
+    let countdownInterval = null;
+    let timeLeft = 10;
+    
+    // Generate random alphanumeric captcha (letters + numbers)
+    function generateCaptcha(length = 5) {
+        const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return result;
+    }
+    
+    function refreshCaptcha() {
+        currentCaptchaText = generateCaptcha(5);
+        document.getElementById("captchaCode").innerText = currentCaptchaText;
+        document.getElementById("captchaInput").value = "";
+        document.getElementById("captchaError").innerHTML = "";
+    }
+    
+    function stopCountdown() {
+        if(countdownInterval) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        }
+    }
+    
+    function startCountdown() {
+        timeLeft = 10;
+        const timerDisplay = document.getElementById("countdownTimer");
+        const downloadBtn = document.getElementById("downloadNowBtn");
+        const statusDisplay = document.getElementById("countdownStatus");
+        
+        downloadBtn.disabled = true;
+        downloadBtn.innerText = "⏳ Maghintay...";
+        timerDisplay.innerText = timeLeft;
+        statusDisplay.innerText = "seconds bago mag-download";
+        
+        countdownInterval = setInterval(() => {
+            timeLeft--;
+            timerDisplay.innerText = timeLeft;
+            
+            if(timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+                downloadBtn.disabled = false;
+                downloadBtn.innerText = "⬇️ I-Download Na!";
+                statusDisplay.innerText = "Ready na! Pwede na mag-download.";
+                timerDisplay.innerText = "✓";
+            }
+        }, 1000);
+    }
+    
+    function showCaptchaModal(downloadUrl) {
+        pendingDownloadUrl = downloadUrl;
+        
+        // Reset to step 1 (captcha)
+        document.getElementById("stepCaptcha").classList.remove("hidden");
+        document.getElementById("stepCountdown").classList.add("hidden");
+        stopCountdown();
+        refreshCaptcha();
+        document.getElementById("captchaInput").value = "";
+        document.getElementById("captchaError").innerHTML = "";
+        
+        document.getElementById("captchaModal").style.display = "flex";
+    }
+    
+    function closeModal() {
+        stopCountdown();
+        document.getElementById("captchaModal").style.display = "none";
+        pendingDownloadUrl = null;
+    }
+    
+    function startDownload(url) {
+        if(url) {
+            window.open(url, '_blank');
+        }
+        closeModal();
+    }
+    
+    function verifyCaptcha() {
+        const userInput = document.getElementById("captchaInput").value.trim().toUpperCase();
+        const errorDiv = document.getElementById("captchaError");
+        
+        if(userInput === "") {
+            errorDiv.innerHTML = "❌ Pakilagay ang captcha code!";
+            return;
+        }
+        
+        if(userInput === currentCaptchaText) {
+            // Correct captcha! Move to step 2 (countdown)
+            errorDiv.innerHTML = "";
+            document.getElementById("stepCaptcha").classList.add("hidden");
+            document.getElementById("stepCountdown").classList.remove("hidden");
+            startCountdown();
+        } else {
+            errorDiv.innerHTML = "❌ Mali ang code! Subukan ulit.";
+            refreshCaptcha();
+        }
+    }
+    
+    function renderApps(apps) {
+        const searchTerm = document.getElementById("searchInput")?.value.toLowerCase() || "";
+        const selectedCat = document.getElementById("categoryFilter")?.value || "all";
+        
+        let filtered = apps.filter(app => {
+            const matchSearch = app.name.toLowerCase().includes(searchTerm) || 
+                               (app.description && app.description.toLowerCase().includes(searchTerm));
+            const matchCat = selectedCat === "all" || app.category === selectedCat;
+            return matchSearch && matchCat;
+        });
+        
+        const container = document.getElementById("appsContainer");
+        if(!container) return;
+        
+        if(filtered.length === 0) {
+            container.innerHTML = `<div class="no-results">📭 Walang mahanap na app. Balik ka ulit paps!</div>`;
+            return;
+        }
+        
+        container.innerHTML = filtered.map(app => `
+            <div class="app-card">
+                <div class="app-icon">📦</div>
+                <div class="app-name">${escapeHtml(app.name)}</div>
+                <div class="app-category">${escapeHtml(app.category || "General")}</div>
+                <div class="app-desc">${escapeHtml(app.description || "No description")}</div>
+                <button class="download-btn" data-url="${escapeHtml(app.downloadUrl)}">⬇️ DOWNLOAD NOW</button>
+            </div>
+        `).join('');
+        
+        // Attach click events to download buttons
+        document.querySelectorAll('.download-btn[data-url]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const url = btn.getAttribute('data-url');
+                showCaptchaModal(url);
+            });
+        });
+    }
+    
+    function updateCategoryFilter(apps) {
+        const select = document.getElementById("categoryFilter");
+        if(!select) return;
+        const categories = [...new Set(apps.map(app => app.category).filter(c => c))];
+        select.innerHTML = '<option value="all">📂 All Categories</option>';
+        categories.forEach(cat => {
+            select.innerHTML += `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`;
+        });
+    }
+    
+    function escapeHtml(str) {
+        if(!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // Load apps from localStorage
+    function loadAndDisplayApps() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        let apps = [];
+        
+        if(stored) {
+            apps = JSON.parse(stored);
+        } else {
+            apps = [];
+        }
+        
+        renderApps(apps);
+        updateCategoryFilter(apps);
+    }
+    
+    // Event listeners
+    document.getElementById("verifyCaptchaBtn")?.addEventListener("click", verifyCaptcha);
+    document.getElementById("downloadNowBtn")?.addEventListener("click", () => {
+        startDownload(pendingDownloadUrl);
+    });
+    document.getElementById("refreshCaptchaBtn")?.addEventListener("click", refreshCaptcha);
+    document.getElementById("closeModalBtn")?.addEventListener("click", closeModal);
+    
+    // Enter key support sa captcha input
+    document.getElementById("captchaInput")?.addEventListener("keypress", (e) => {
+        if(e.key === "Enter") {
+            verifyCaptcha();
+        }
+    });
+    
+    // Close modal when clicking outside
+    window.addEventListener("click", (e) => {
+        const modal = document.getElementById("captchaModal");
+        if(e.target === modal) {
+            closeModal();
+        }
+    });
+    
+    document.getElementById("searchInput")?.addEventListener("input", () => {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        const apps = stored ? JSON.parse(stored) : [];
+        renderApps(apps);
+    });
+    
+    document.getElementById("categoryFilter")?.addEventListener("change", () => {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        const apps = stored ? JSON.parse(stored) : [];
+        renderApps(apps);
+    });
+    
+    window.addEventListener("storage", (e) => {
+        if(e.key === STORAGE_KEY) {
+            const newApps = e.newValue ? JSON.parse(e.newValue) : [];
+            renderApps(newApps);
+            updateCategoryFilter(newApps);
+        }
+    });
+    
+    // Initial load
+    loadAndDisplayApps();
+    
+    setInterval(() => {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        const apps = stored ? JSON.parse(stored) : [];
+        renderApps(apps);
+        updateCategoryFilter(apps);
+    }, 3000);
+</script>
+</body>
+</html>
