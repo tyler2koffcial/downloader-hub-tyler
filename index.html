@@ -1,531 +1,545 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>DownloadHub | No Login Required</title>
-<style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tyler' Downloader Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(145deg, #0a0f1e 0%, #0c1222 100%);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+            color: #eef2ff;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        .hub-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .hub-header h1 {
+            font-size: 2.8rem;
+            background: linear-gradient(135deg, #ffffff, #a5f3ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .sub {
+            color: #9ca3cf;
+            margin-top: 0.75rem;
+        }
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: rgba(18, 25, 45, 0.7);
+            padding: 0.8rem 1.5rem;
+            border-radius: 60px;
+        }
+        .search-box {
+            flex: 2;
+            background: #111827;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+        }
+        .search-box input {
+            background: transparent;
+            border: none;
+            padding: 0.6rem 0;
+            width: 100%;
+            color: white;
+            outline: none;
+        }
+        .filter-group select {
+            background: #1e2a3e;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+        }
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 1.8rem;
+        }
+        .app-card {
+            background: rgba(20, 28, 44, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: transform 0.2s;
+            text-align: center;
+        }
+        .app-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(59,130,246,0.4);
+        }
+        .app-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .app-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .app-category {
+            color: #60a5fa;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin: 0.3rem 0;
+        }
+        .app-desc {
+            color: #b9c3e6;
+            font-size: 0.9rem;
+            margin: 0.7rem 0;
+            line-height: 1.4;
+        }
+        .download-btn {
+            display: block;
+            background: #2563eb;
+            text-align: center;
+            padding: 0.7rem;
+            border-radius: 40px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 1rem;
+            transition: background 0.2s;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            font-size: 1rem;
+        }
+        .download-btn:hover {
+            background: #1d4ed8;
+        }
+        .download-btn:disabled {
+            background: #475569;
+            cursor: not-allowed;
+        }
+        .no-results {
+            text-align: center;
+            grid-column: 1/-1;
+            padding: 3rem;
+        }
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            opacity: 0.6;
+            font-size: 0.8rem;
+        }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    padding: 1.5rem;
-  }
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .card {
-    background: white;
-    border-radius: 1.5rem;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .header {
-    text-align: center;
-    margin-bottom: 2rem;
-    color: white;
-  }
-  .header h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-  }
-  .header p {
-    opacity: 0.95;
-    margin-top: 0.5rem;
-  }
-
-  /* Admin Section (only for you) */
-  .admin-section {
-    border-top: 4px solid #f59e0b;
-  }
-  .admin-toggle {
-    background: #f59e0b;
-    color: #333;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 2rem;
-    cursor: pointer;
-    font-weight: bold;
-    margin-bottom: 1rem;
-  }
-
-  button {
-    background: #667eea;
-    color: white;
-    border: none;
-    padding: 0.7rem 1.5rem;
-    border-radius: 2rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  button:hover { transform: translateY(-2px); }
-  .btn-copy { background: #10b981; padding: 0.3rem 1rem; font-size: 0.8rem; }
-  .btn-delete { background: #ef4444; padding: 0.3rem 1rem; font-size: 0.8rem; }
-
-  input, textarea, select {
-    width: 100%;
-    padding: 0.75rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 1rem;
-    margin-bottom: 1rem;
-  }
-  label {
-    font-weight: 600;
-    display: block;
-    margin-bottom: 0.3rem;
-    font-size: 0.85rem;
-    color: #334155;
-  }
-
-  /* Links Grid */
-  .links-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-top: 1.5rem;
-    max-height: 500px;
-    overflow-y: auto;
-  }
-  .link-row {
-    background: #f8fafc;
-    border-radius: 1rem;
-    padding: 1rem;
-    border: 1px solid #e2e8f0;
-  }
-  .link-title {
-    font-weight: 700;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-  }
-  .link-url {
-    background: #eef2ff;
-    padding: 0.5rem;
-    border-radius: 0.75rem;
-    font-family: monospace;
-    font-size: 0.7rem;
-    word-break: break-all;
-    margin: 0.5rem 0;
-  }
-  .link-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
-
-  /* Download View */
-  .download-view { text-align: center; }
-  .file-icon { font-size: 4rem; margin-bottom: 1rem; }
-  .file-name { font-size: 1.8rem; font-weight: 700; margin: 0.5rem 0; }
-  .captcha-box {
-    background: #f1f5f9;
-    padding: 1.5rem;
-    border-radius: 1rem;
-    margin: 1.5rem 0;
-  }
-  .captcha-code {
-    font-family: monospace;
-    font-size: 2rem;
-    letter-spacing: 0.5rem;
-    background: #1e293b;
-    color: white;
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    border-radius: 1rem;
-    margin-bottom: 1rem;
-  }
-  .countdown-timer { font-size: 2rem; font-weight: 800; color: #667eea; margin: 1rem 0; }
-  .alert {
-    padding: 0.8rem;
-    border-radius: 1rem;
-    margin-bottom: 1rem;
-    display: none;
-  }
-  .alert.show { display: block; }
-  .alert-success { background: #d1fae5; color: #065f46; }
-  .alert-error { background: #fee2e2; color: #991b1b; }
-  .empty-state { text-align: center; padding: 2rem; color: #94a3b8; }
-  hr { margin: 1.5rem 0; border-top: 1px solid #e2e8f0; }
-
-  @media (max-width: 640px) {
-    body { padding: 1rem; }
-    .card { padding: 1rem; }
-    .file-name { font-size: 1.3rem; }
-  }
-</style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #1e293b;
+            border-radius: 30px;
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid #3b82f6;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-content h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        .captcha-box {
+            background: #0f172a;
+            padding: 1.5rem;
+            border-radius: 20px;
+            margin: 1rem 0;
+        }
+        .captcha-display {
+            background: #000000;
+            padding: 1rem;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 2rem;
+            font-weight: bold;
+            letter-spacing: 8px;
+            text-align: center;
+            color: #10b981;
+            margin-bottom: 1rem;
+            border: 1px solid #3b82f6;
+        }
+        .captcha-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 30px;
+            border: none;
+            text-align: center;
+            font-size: 1rem;
+            background: #0f172a;
+            color: white;
+            margin-top: 10px;
+        }
+        .countdown-box {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 20px;
+            margin: 1rem 0;
+        }
+        .countdown-timer {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #fbbf24;
+        }
+        .verify-btn {
+            background: #10b981;
+            width: 100%;
+            padding: 12px;
+        }
+        .verify-btn:disabled {
+            background: #475569;
+            cursor: not-allowed;
+        }
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+        .success-msg {
+            color: #10b981;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+        .close-modal {
+            margin-top: 1rem;
+            background: #475569;
+            padding: 10px;
+            width: 100%;
+        }
+        .refresh-captcha {
+            background: #3b82f6;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            margin-top: 10px;
+            display: inline-block;
+            width: auto;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-
 <div class="container">
-  <div class="header">
-    <h1>📦 DownloadHub</h1>
-    <p>Create & share protected download links - No login for downloaders!</p>
-  </div>
-
-  <!-- ADMIN SECTION (Hidden by default, only you will open this) -->
-  <div class="card admin-section" id="adminSection" style="display: none;">
-    <button class="admin-toggle" id="hideAdminBtn">🔒 Hide Admin Panel</button>
-    <h2 style="margin-bottom: 1rem;">🔧 Admin Generator</h2>
-    <p style="margin-bottom: 1rem; color: #64748b;">Create download links - Share them anywhere!</p>
-    <div id="adminAlert" class="alert"></div>
-    
-    <label>📄 File Title</label>
-    <input type="text" id="fileTitle" placeholder="e.g., Adobe Photoshop 2024">
-    
-    <label>📝 Description</label>
-    <textarea id="fileDesc" rows="2" placeholder="Short description..."></textarea>
-    
-    <label>🏷 Category</label>
-    <select id="fileCategory">
-      <option value="Software">💻 Software</option>
-      <option value="Ebooks">📚 Ebooks</option>
-      <option value="Games">🎮 Games</option>
-      <option value="Music">🎵 Music</option>
-      <option value="Other">📁 Other</option>
-    </select>
-    
-    <label>🔗 Direct Download Link</label>
-    <input type="text" id="directUrl" placeholder="https://drive.google.com / mediafire link">
-    
-    <button id="generateBtn" style="width: 100%;">✨ Generate Shareable Link</button>
-    
-    <hr>
-    <h3>📋 Your Links</h3>
-    <div id="linksListContainer" class="links-grid">
-      <div class="empty-state">No links yet. Create your first one ⬆️</div>
+    <div class="hub-header">
+        <h1>📦 Tyler' Downloader Hub</h1>
+        <div class="sub">⬇️ Piliin mo lang yung gusto mong app — mag-solve lang ng captcha</div>
     </div>
-  </div>
 
-  <!-- SHOW ADMIN BUTTON -->
-  <div style="text-align: center; margin-bottom: 1rem;">
-    <button id="showAdminBtn" class="admin-toggle" style="background: #f59e0b;">🔧 Admin Panel (Click to manage links)</button>
-  </div>
+    <div class="toolbar">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Maghanap ng app...">
+        </div>
+        <div class="filter-group">
+            <select id="categoryFilter">
+                <option value="all">📂 All Categories</option>
+            </select>
+        </div>
+    </div>
 
-  <!-- DOWNLOAD VIEW (shown when ?id=xxx) -->
-  <div id="downloadView" class="card" style="display: none;"></div>
+    <div id="appsContainer" class="apps-grid">
+        <div style="text-align: center; grid-column:1/-1;">Loading apps...</div>
+    </div>
+
+    <footer>
+        🧰 Auto-update galing kay Admin — laging fresh ang mga link
+    </footer>
+</div>
+
+<!-- Captcha Modal -->
+<div id="captchaModal" class="modal">
+    <div class="modal-content">
+        <h3>🔐 Human Verification</h3>
+        
+        <!-- Step 1: Captcha Input -->
+        <div id="stepCaptcha">
+            <p style="margin-bottom: 10px;">I-type ang code sa ibaba:</p>
+            <div class="captcha-box">
+                <div class="captcha-display" id="captchaCode">XXXX</div>
+                <input type="text" id="captchaInput" class="captcha-input" placeholder="Ilagay ang code" autocomplete="off">
+                <button id="refreshCaptchaBtn" class="download-btn refresh-captcha">🔄 I-refresh Code</button>
+            </div>
+            <button id="verifyCaptchaBtn" class="download-btn verify-btn">✓ Verify Code</button>
+            <div id="captchaError" class="error-msg"></div>
+        </div>
+
+        <!-- Step 2: Countdown (shown after correct captcha) -->
+        <div id="stepCountdown" class="hidden">
+            <div class="countdown-box">
+                <div style="font-size: 0.9rem; margin-bottom: 5px;">⏳ Verified! Maghintay ng:</div>
+                <div class="countdown-timer" id="countdownTimer">10</div>
+                <div id="countdownStatus" style="font-size: 0.75rem; color: #94a3b8;">seconds bago mag-download</div>
+            </div>
+            <button id="downloadNowBtn" class="download-btn verify-btn" disabled>⏳ Maghintay...</button>
+        </div>
+        
+        <button id="closeModalBtn" class="download-btn close-modal">❌ Cancel</button>
+    </div>
 </div>
 
 <script>
-  // DATABASE - links are saved in browser
-  let allLinks = [];
-  let currentCaptcha = '';
-  let countdownInterval = null;
-
-  // Load/Save
-  function saveLinks() {
-    localStorage.setItem('downloadhub_links', JSON.stringify(allLinks));
-  }
-
-  function loadLinks() {
-    const raw = localStorage.getItem('downloadhub_links');
-    if (raw) {
-      allLinks = JSON.parse(raw);
-    } else {
-      // Sample data
-      allLinks = [];
-      saveLinks();
-    }
-  }
-
-  // Helpers
-  function makeId() {
-    return Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
-  }
-
-  function getIcon(cat) {
-    const map = {
-      'Software': '💻',
-      'Ebooks': '📚',
-      'Games': '🎮',
-      'Music': '🎵',
-      'Other': '📁'
-    };
-    return map[cat] || '📄';
-  }
-
-  function getShareableUrl(id) {
-    const base = window.location.href.split('?')[0];
-    return `${base}?id=${id}`;
-  }
-
-  function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    });
-  }
-
-  function showAdminAlert(msg, type = 'success') {
-    const alertDiv = document.getElementById('adminAlert');
-    if (alertDiv) {
-      alertDiv.className = `alert alert-${type} show`;
-      alertDiv.innerText = msg;
-      setTimeout(() => alertDiv.classList.remove('show'), 3000);
-    }
-  }
-
-  async function copyText(text) {
-    try {
-      await navigator.clipboard.writeText(text);
-      showAdminAlert('✅ Link copied! Share it anywhere.', 'success');
-    } catch(e) {
-      alert('Copy: ' + text);
-    }
-  }
-
-  // Generate Link
-  function generateLink() {
-    const title = document.getElementById('fileTitle').value.trim();
-    const desc = document.getElementById('fileDesc').value.trim();
-    const category = document.getElementById('fileCategory').value;
-    const directLink = document.getElementById('directUrl').value.trim();
-
-    if (!title || !desc || !directLink) {
-      showAdminAlert('❌ All fields required', 'error');
-      return;
-    }
-    if (!directLink.startsWith('http')) {
-      showAdminAlert('⚠️ Link must start with http:// or https://', 'error');
-      return;
-    }
-
-    const newLink = {
-      id: makeId(),
-      title: title,
-      desc: desc,
-      category: category,
-      directLink: directLink,
-      downloads: 0,
-      createdAt: new Date().toISOString()
-    };
-    allLinks.push(newLink);
-    saveLinks();
-    renderLinks();
+    const STORAGE_KEY = "paps_downloader_hub_apps";
+    let pendingDownloadUrl = null;
+    let currentCaptchaText = "";
+    let countdownInterval = null;
+    let timeLeft = 10;
     
-    document.getElementById('fileTitle').value = '';
-    document.getElementById('fileDesc').value = '';
-    document.getElementById('directUrl').value = '';
-    showAdminAlert(`✅ Link created! Share this: ${getShareableUrl(newLink.id)}`, 'success');
-  }
-
-  // Render admin links
-  function renderLinks() {
-    const container = document.getElementById('linksListContainer');
-    if (!container) return;
-    
-    if (allLinks.length === 0) {
-      container.innerHTML = '<div class="empty-state">✨ No links yet. Create one above.</div>';
-      return;
-    }
-    container.innerHTML = '';
-    allLinks.forEach(link => {
-      const url = getShareableUrl(link.id);
-      const div = document.createElement('div');
-      div.className = 'link-row';
-      div.innerHTML = `
-        <div class="link-title">
-          <span>${getIcon(link.category)} ${escapeHtml(link.title)}</span>
-          <span style="font-size:0.7rem;">⬇️ Downloaded: ${link.downloads || 0}</span>
-        </div>
-        <div class="link-meta">${link.category} • ${new Date(link.createdAt).toLocaleDateString()}</div>
-        <div class="link-url">🔗 ${escapeHtml(url)}</div>
-        <div class="link-actions">
-          <button class="btn-copy" data-url="${url}">📋 Copy Link</button>
-          <button class="btn-delete" data-id="${link.id}">🗑 Delete</button>
-        </div>
-      `;
-      container.appendChild(div);
-    });
-
-    document.querySelectorAll('.btn-copy').forEach(btn => {
-      btn.addEventListener('click', (e) => copyText(btn.getAttribute('data-url')));
-    });
-    document.querySelectorAll('.btn-delete').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = btn.getAttribute('data-id');
-        if (confirm('Delete this link?')) {
-          allLinks = allLinks.filter(l => l.id !== id);
-          saveLinks();
-          renderLinks();
-          // If currently viewing deleted link, reload
-          const params = new URLSearchParams(window.location.search);
-          if (params.get('id') === id) {
-            window.location.href = window.location.href.split('?')[0];
-          }
+    // Generate random alphanumeric captcha (letters + numbers)
+    function generateCaptcha(length = 5) {
+        const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
         }
-      });
-    });
-  }
-
-  // CAPTCHA
-  function generateCaptcha() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
-    let code = '';
-    for (let i = 0; i < 5; i++) {
-      code += chars[Math.floor(Math.random() * chars.length)];
+        return result;
     }
-    currentCaptcha = code;
-    return code;
-  }
-
-  function startCountdown(seconds, onTick, onComplete) {
-    let remaining = seconds;
-    if (countdownInterval) clearInterval(countdownInterval);
-    onTick(remaining);
-    countdownInterval = setInterval(() => {
-      remaining--;
-      if (remaining >= 0) {
-        onTick(remaining);
-      }
-      if (remaining < 0) {
-        clearInterval(countdownInterval);
-        countdownInterval = null;
-        onComplete();
-      }
-    }, 1000);
-  }
-
-  // DOWNLOAD PAGE - NO LOGIN REQUIRED!
-  function renderDownloadView(file) {
-    const viewDiv = document.getElementById('downloadView');
-    const captchaCode = generateCaptcha();
     
-    viewDiv.innerHTML = `
-      <div class="download-view">
-        <div class="file-icon">${getIcon(file.category)}</div>
-        <div class="file-name">${escapeHtml(file.title)}</div>
-        <p style="color: #475569; margin-bottom: 0.5rem;">${escapeHtml(file.desc)}</p>
-        <p style="font-size: 0.8rem; color: #64748b;">📥 Downloaded ${file.downloads || 0} times</p>
+    function refreshCaptcha() {
+        currentCaptchaText = generateCaptcha(5);
+        document.getElementById("captchaCode").innerText = currentCaptchaText;
+        document.getElementById("captchaInput").value = "";
+        document.getElementById("captchaError").innerHTML = "";
+    }
+    
+    function stopCountdown() {
+        if(countdownInterval) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        }
+    }
+    
+    function startCountdown() {
+        timeLeft = 10;
+        const timerDisplay = document.getElementById("countdownTimer");
+        const downloadBtn = document.getElementById("downloadNowBtn");
+        const statusDisplay = document.getElementById("countdownStatus");
         
-        <div class="captcha-box" id="captchaBox">
-          <div style="font-weight: 600; margin-bottom: 0.8rem;">🔒 Enter CAPTCHA to continue</div>
-          <div class="captcha-code" id="captchaCodeDisplay">${captchaCode}</div>
-          <input type="text" id="captchaInput" placeholder="Type code above" style="text-align: center; max-width: 200px; margin: 0.8rem auto; display: block;">
-          <button id="verifyCaptchaBtn">✅ Verify CAPTCHA</button>
-        </div>
+        downloadBtn.disabled = true;
+        downloadBtn.innerText = "⏳ Maghintay...";
+        timerDisplay.innerText = timeLeft;
+        statusDisplay.innerText = "seconds bago mag-download";
         
-        <div id="countdownArea" style="margin-top: 1rem;"></div>
-        <div id="downloadButtonArea" style="margin-top: 1rem;"></div>
-      </div>
-    `;
-
-    const verifyBtn = document.getElementById('verifyCaptchaBtn');
-    verifyBtn.addEventListener('click', () => {
-      const userInput = document.getElementById('captchaInput').value.trim().toUpperCase();
-      if (userInput === currentCaptcha) {
-        document.getElementById('captchaBox').style.display = 'none';
-        const countdownDiv = document.getElementById('countdownArea');
-        countdownDiv.innerHTML = `
-          <div style="background: #e0e7ff; padding: 1rem; border-radius: 1rem;">
-            <p style="font-weight: 600;">✅ CAPTCHA Verified!</p>
-            <div class="countdown-timer" id="timerDisplay">5</div>
-            <p>Please wait before download...</p>
-          </div>
-        `;
+        countdownInterval = setInterval(() => {
+            timeLeft--;
+            timerDisplay.innerText = timeLeft;
+            
+            if(timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+                downloadBtn.disabled = false;
+                downloadBtn.innerText = "⬇️ I-Download Na!";
+                statusDisplay.innerText = "Ready na! Pwede na mag-download.";
+                timerDisplay.innerText = "✓";
+            }
+        }, 1000);
+    }
+    
+    function showCaptchaModal(downloadUrl) {
+        pendingDownloadUrl = downloadUrl;
         
-        startCountdown(5, (sec) => {
-          const timerSpan = document.getElementById('timerDisplay');
-          if (timerSpan) timerSpan.innerText = sec;
-        }, () => {
-          // Update download count
-          file.downloads = (file.downloads || 0) + 1;
-          saveLinks();
-          
-          const downloadArea = document.getElementById('downloadButtonArea');
-          downloadArea.innerHTML = `
-            <a href="${file.directLink}" target="_blank" style="display: inline-block; background: #10b981; color: white; padding: 1rem 2rem; border-radius: 2rem; text-decoration: none; font-weight: bold; margin-top: 1rem;">
-              ⬇ CLICK TO DOWNLOAD NOW
-            </a>
-          `;
+        // Reset to step 1 (captcha)
+        document.getElementById("stepCaptcha").classList.remove("hidden");
+        document.getElementById("stepCountdown").classList.add("hidden");
+        stopCountdown();
+        refreshCaptcha();
+        document.getElementById("captchaInput").value = "";
+        document.getElementById("captchaError").innerHTML = "";
+        
+        document.getElementById("captchaModal").style.display = "flex";
+    }
+    
+    function closeModal() {
+        stopCountdown();
+        document.getElementById("captchaModal").style.display = "none";
+        pendingDownloadUrl = null;
+    }
+    
+    function startDownload(url) {
+        if(url) {
+            window.open(url, '_blank');
+        }
+        closeModal();
+    }
+    
+    function verifyCaptcha() {
+        const userInput = document.getElementById("captchaInput").value.trim().toUpperCase();
+        const errorDiv = document.getElementById("captchaError");
+        
+        if(userInput === "") {
+            errorDiv.innerHTML = "❌ Pakilagay ang captcha code!";
+            return;
+        }
+        
+        if(userInput === currentCaptchaText) {
+            // Correct captcha! Move to step 2 (countdown)
+            errorDiv.innerHTML = "";
+            document.getElementById("stepCaptcha").classList.add("hidden");
+            document.getElementById("stepCountdown").classList.remove("hidden");
+            startCountdown();
+        } else {
+            errorDiv.innerHTML = "❌ Mali ang code! Subukan ulit.";
+            refreshCaptcha();
+        }
+    }
+    
+    function renderApps(apps) {
+        const searchTerm = document.getElementById("searchInput")?.value.toLowerCase() || "";
+        const selectedCat = document.getElementById("categoryFilter")?.value || "all";
+        
+        let filtered = apps.filter(app => {
+            const matchSearch = app.name.toLowerCase().includes(searchTerm) || 
+                               (app.description && app.description.toLowerCase().includes(searchTerm));
+            const matchCat = selectedCat === "all" || app.category === selectedCat;
+            return matchSearch && matchCat;
         });
-      } else {
-        alert('❌ Wrong CAPTCHA! Try again.');
-        const newCode = generateCaptcha();
-        document.getElementById('captchaCodeDisplay').innerText = newCode;
-        document.getElementById('captchaInput').value = '';
-      }
+        
+        const container = document.getElementById("appsContainer");
+        if(!container) return;
+        
+        if(filtered.length === 0) {
+            container.innerHTML = `<div class="no-results">📭 Walang mahanap na app. Balik ka ulit paps!</div>`;
+            return;
+        }
+        
+        container.innerHTML = filtered.map(app => `
+            <div class="app-card">
+                <div class="app-icon">📦</div>
+                <div class="app-name">${escapeHtml(app.name)}</div>
+                <div class="app-category">${escapeHtml(app.category || "General")}</div>
+                <div class="app-desc">${escapeHtml(app.description || "No description")}</div>
+                <button class="download-btn" data-url="${escapeHtml(app.downloadUrl)}">⬇️ DOWNLOAD NOW</button>
+            </div>
+        `).join('');
+        
+        // Attach click events to download buttons
+        document.querySelectorAll('.download-btn[data-url]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const url = btn.getAttribute('data-url');
+                showCaptchaModal(url);
+            });
+        });
+    }
+    
+    function updateCategoryFilter(apps) {
+        const select = document.getElementById("categoryFilter");
+        if(!select) return;
+        const categories = [...new Set(apps.map(app => app.category).filter(c => c))];
+        select.innerHTML = '<option value="all">📂 All Categories</option>';
+        categories.forEach(cat => {
+            select.innerHTML += `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`;
+        });
+    }
+    
+    function escapeHtml(str) {
+        if(!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // Load apps from localStorage
+    function loadAndDisplayApps() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        let apps = [];
+        
+        if(stored) {
+            apps = JSON.parse(stored);
+        } else {
+            apps = [];
+        }
+        
+        renderApps(apps);
+        updateCategoryFilter(apps);
+    }
+    
+    // Event listeners
+    document.getElementById("verifyCaptchaBtn")?.addEventListener("click", verifyCaptcha);
+    document.getElementById("downloadNowBtn")?.addEventListener("click", () => {
+        startDownload(pendingDownloadUrl);
     });
-  }
-
-  function showNotFound() {
-    const viewDiv = document.getElementById('downloadView');
-    viewDiv.style.display = 'block';
-    viewDiv.innerHTML = `
-      <div style="text-align:center; padding:2rem;">
-        <span style="font-size:3rem;">🔗❌</span>
-        <h3>Link not found or expired</h3>
-        <p>The file may have been removed.</p>
-      </div>
-    `;
-    document.getElementById('adminSection').style.display = 'none';
-    document.getElementById('showAdminBtn').style.display = 'block';
-  }
-
-  // ROUTING - check if there's a download id in URL
-  function checkRoute() {
-    const params = new URLSearchParams(window.location.search);
-    const fileId = params.get('id');
+    document.getElementById("refreshCaptchaBtn")?.addEventListener("click", refreshCaptcha);
+    document.getElementById("closeModalBtn")?.addEventListener("click", closeModal);
     
-    if (fileId) {
-      // Someone is trying to download - NO LOGIN NEEDED!
-      const file = allLinks.find(l => l.id === fileId);
-      if (file) {
-        document.getElementById('downloadView').style.display = 'block';
-        document.getElementById('adminSection').style.display = 'none';
-        document.getElementById('showAdminBtn').style.display = 'none';
-        renderDownloadView(file);
-      } else {
-        showNotFound();
-      }
-    } else {
-      // No download ID - show admin panel (if toggled)
-      document.getElementById('downloadView').style.display = 'none';
-      document.getElementById('adminSection').style.display = 'none';
-      document.getElementById('showAdminBtn').style.display = 'block';
-    }
-  }
-
-  // Admin panel toggle
-  let adminVisible = false;
-  function toggleAdmin() {
-    const adminSection = document.getElementById('adminSection');
-    const showBtn = document.getElementById('showAdminBtn');
+    // Enter key support sa captcha input
+    document.getElementById("captchaInput")?.addEventListener("keypress", (e) => {
+        if(e.key === "Enter") {
+            verifyCaptcha();
+        }
+    });
     
-    if (adminVisible) {
-      adminSection.style.display = 'none';
-      showBtn.style.display = 'block';
-      adminVisible = false;
-    } else {
-      adminSection.style.display = 'block';
-      showBtn.style.display = 'none';
-      adminVisible = true;
-      renderLinks(); // refresh links when opening
-    }
-  }
-
-  // INIT
-  function init() {
-    loadLinks();
+    // Close modal when clicking outside
+    window.addEventListener("click", (e) => {
+        const modal = document.getElementById("captchaModal");
+        if(e.target === modal) {
+            closeModal();
+        }
+    });
     
-    document.getElementById('showAdminBtn').addEventListener('click', toggleAdmin);
-    document.getElementById('hideAdminBtn').addEventListener('click', toggleAdmin);
-    document.getElementById('generateBtn').addEventListener('click', generateLink);
+    document.getElementById("searchInput")?.addEventListener("input", () => {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        const apps = stored ? JSON.parse(stored) : [];
+        renderApps(apps);
+    });
     
-    checkRoute();
-  }
-  
-  init();
+    document.getElementById("categoryFilter")?.addEventListener("change", () => {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        const apps = stored ? JSON.parse(stored) : [];
+        renderApps(apps);
+    });
+    
+    window.addEventListener("storage", (e) => {
+        if(e.key === STORAGE_KEY) {
+            const newApps = e.newValue ? JSON.parse(e.newValue) : [];
+            renderApps(newApps);
+            updateCategoryFilter(newApps);
+        }
+    });
+    
+    // Initial load
+    loadAndDisplayApps();
+    
+    setInterval(() => {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        const apps = stored ? JSON.parse(stored) : [];
+        renderApps(apps);
+        updateCategoryFilter(apps);
+    }, 3000);
 </script>
 </body>
 </html>
